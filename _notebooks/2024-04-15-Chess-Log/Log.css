@@ -1,0 +1,11 @@
+#moveLog {
+    color: white;
+    position: fixed;
+    right: 0px;
+    transform: translate(-100%, 0);
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black background */
+    border-left: 2px solid gray; /* Adds a left border for better visibility */
+    max-height: 100vh;
+    overflow-y: auto; /* Allows scrolling if many moves are logged */
+}
