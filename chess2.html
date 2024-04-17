@@ -1,0 +1,71 @@
+<html>
+    <head>
+        <style>
+            body, html {
+                height: 100%;
+                margin: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-color: #24242a;
+            }
+            .container {
+                position: relative;
+                width: 800px; /* Adjusted based on the total width of the board and the move list */
+                display: flex;
+                justify-content: space-between;
+            }
+            .chessBoard {
+                width: 400px;
+                height: 400px;
+                margin: 20px;
+            }
+            .playSide {
+                position: absolute;
+                top: 90%;
+                height: 10%;
+                width: 100%;
+                background-color: #40415e;
+                color: white;
+                text-align: center;
+                font-family: monospace;
+                font-size: 20px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            #moveList {
+                width: 20%;
+                height: 400px;
+                background-color: #333;
+                color: white;
+                overflow-y: auto;
+                padding: 10px;
+                margin: 20px;
+                box-sizing: border-box;
+            }
+            #moveHistory {
+                list-style-type: none;
+                padding: 0;
+            }
+            h3 {
+                margin-top: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <svg class="chessBoard" viewBox="0 0 400 400"></svg>
+            <div id="moveList">
+                <h3>Moves</h3>
+                <ul id="moveHistory">
+                    <!-- Move entries will be appended here dynamically -->
+                </ul>
+            </div>
+        </div>
+
+        <div class="playSide">AI (Black) vs You (White)</div>
+
+        <!-- Script for Chess Logic (Unchanged, ensure your existing script tags are here) -->
+    </body>
+</html>
