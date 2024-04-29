@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #24242a;
+        }
+        .container {
+            width: 600px;
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+        .chessBoard {
+            width: 400px;
+            height: 400px;
+        }
+        .playSide {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 40px;
+            background-color: #40415e;
+            color: white;
+            text-align: center;
+            font-family: monospace;
+            font-size: 20px;
+            line-height: 40px;
+        }
+        .chessPiece {
+            fill: gray;
+            font-family: monospace;
+            font-size: 30px;
+            cursor: pointer;
+        }
+        #moveList {
+            width: 150px;
+            height: 400px;
+            overflow-y: auto;
+            background-color: #333;
+            color: white;
+            padding: 5px;
+            box-sizing: border-box;
+            font-family: monospace;
+        }
+        #moveHistory {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <svg class="chessBoard" viewBox="0 0 400 400">
+            <rect fill="#fff" width="400" height="400"/>
+            <!-- Chess pieces are added here dynamically -->
+        </svg>
+        <div id="moveList">
+            <ul id="moveHistory"></ul>
+        </div>
+        <div class="playSide">AI (Black) vs You (White)</div>
+    </div>
+
+    <script>
+        const board = document.querySelector('.chessBoard');
+        const moveList = document.getElementById('moveHistory');
+        const pieces = [
+            ['BR', 'BN', 'BB', 'BQ', 'BK', 'BB', 'BN', 'BR'],
+            ['BP', 'BP', 'BP', 'BP', 'BP', 'BP', 'BP', 'BP'],
+            ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+            /* more rows omitted for brevity */
+            ['WP', 'WP', 'WP', 'WP', 'WP', 'WP', 'WP', 'WP'],
+            ['WR', 'WN', 'WB', 'WQ', 'WK', 'WB', 'WN', 'WR']
+        ];
+
+        function setupBoard() {
+            pieces.forEach((row, y) => {
+                row.forEach((piece, x) => {
+                    if (piece.trim() !== '') {
+                        const elem = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        elem.setAttribute('x', x * 50 + 10);
+                        elem.setAttribute('y', y * 50 + 30);
+                        elem.classList.add('chessPiece');
+                        elem.textContent = piece;
+                        elem.onclick = () => handlePieceClick(piece, x, y);
+                        board.appendChild(elem);
+                    }
+                });
+            });
+        }
+
+        function handlePieceClick(piece, x, y) {
+            console.log(`Piece ${piece} clicked at (${x}, ${y})`);
+            const moveDescription = `${piece} to (${x}, ${y})`;
+            const newMove = document.createElement('li');
+            newMove.textContent = moveDescription;
+            moveList.appendChild(newMove);
+            // Implement additional functionality such as checking valid moves, updating positions, etc.
+        }
+
+        setupBoard();
+    </script>
+</body>
+</html>
