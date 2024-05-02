@@ -106,11 +106,13 @@
             container.addEventListener("mousemove", (e) => {gameOperator(e)})
 
             function opponentMoves(formerX, formerY, latterX, latterY){
-                var oldPiece = document.getElementsByClassName("chessPiece")[latterY * 8 + latterX].textContent
-                chessPieces[latterY][latterX] = chessPieces[formerY][formerX]
-                chessPieces[formerY][formerX] = oldPiece
+                let oldPiece = chessPieces[formerY][formerX]
+                console.log("Former Piece is", oldPiece, "New Position is", `(${latterX}, ${latterY})`)
+                chessPieces[latterY][latterX] = oldPiece
+                chessPieces[formerY][formerX] = "  "
+                console.log("Former Piece is", oldPiece)
                 document.getElementsByClassName("chessPiece")[latterY * 8 + latterX].textContent = document.getElementsByClassName("chessPiece")[formerY * 8 + formerX].textContent
-                document.getElementsByClassName("chessPiece")[formerY * 8 + formerX].textContent = oldPiece
+                document.getElementsByClassName("chessPiece")[formerY * 8 + formerX].textContent = " "
                 if(chessPieces[latterY][latterX] != "  "){
                     document.getElementsByClassName("chessPiece")[formerY * 8 + formerX].textContent = " "
                 }
@@ -162,7 +164,7 @@
                     playStage = "moveTo"
                     switch(chessPieces[topCoords][leftCoords]){
                         case "WP":
-                            if(chessPieces[topCoords][leftCoords] == "WP" && topCoords == 6){
+                        if(chessPieces[topCoords][leftCoords] == "WP" && topCoords == 6){
                                 moveSpace(leftCoords, topCoords - 1)
                                 moveSpace(leftCoords, topCoords - 2)
                                 break
@@ -176,11 +178,59 @@
                             }
                             if(chessPieces[topCoords - 1][leftCoords + 1].slice(0, 1) == "B"){
                                 console.log("Is Attacking Piece")
-                                document.getElementsByClassName("chessPiece")[topCoords * 8 + leftCoords - 2].style.fill = "green"
+                                document.getElementsByClassName("chessPiece")[topCoords * 8 + leftCoords - 7].style.fill = "green"
                                 console.log("Attacking piece should be", document.getElementsByClassName("chessPiece")[topCoords * 8 + leftCoords + 1])
                                 attackList.push([leftCoords + 1, topCoords - 1])
                             }
-                            if(!(chessPieces[topCoords - 1][leftCoords + 1].slice(0, 1) == "B" || chessPieces[topCoords - 1][leftCoords - 1].slice(0, 1) == "B")){
+                            if(chessPieces[topCoords][leftCoords + 1].slice(0, 1) == "B" && topCoords == 3){
+                                console.log("Is Attacking Piece at", `(${leftCoords}, ${topCoords})`)
+                                document.getElementsByClassName("chessPiece")[topCoords * 8 + leftCoords - 9].style.fill = "green"
+                                console.log("Attacking piece should be", document.getElementsByClassName("chessPiece")[topCoords * 8 + leftCoords - 9])
+
+                                let circle = document.createElementNS("http://www.w3.org/2000/svg", "circle")
+                                
+                                circle.setAttribute("class", "circle")
+                                selectedParts.push([x, y])
+                                circle.setAttribute("cx", leftCoords * (container.clientWidth / 8) + 25 + (container.clientWidth / 8))
+                                circle.setAttribute("cy", topCoords * (container.clientHeight / 8) + 25 - (container.clientWidth / 8))
+                                circle.setAttribute("r", 15)
+                                circle.style.stroke = "green"
+                                circle.addEventListener("click", (e) => {
+                                    setPiece(e)
+                                    document.getElementsByClassName("chessPiece")[((topCoords - 1) * 8) + leftCoords + 9].innerHTML = " "
+                                    chessPieces[topCoords][leftCoords + 1] = "  "
+                                })
+
+                                console.log("Attacking", (topCoords * 8) + leftCoords + 8)
+
+                                container.appendChild(circle)
+
+                                attackList.push([leftCoords + 1, topCoords])
+                            }
+                            if(chessPieces[topCoords][leftCoords - 1].slice(0, 1) == "B" && topCoords == 3){
+                                console.log("Is Attacking Piece at", `(${leftCoords}, ${topCoords})`)
+                                document.getElementsByClassName("chessPiece")[topCoords * 8 + leftCoords - 7].style.fill = "green"
+                                console.log("Attacking piece should be", document.getElementsByClassName("chessPiece")[topCoords * 8 + leftCoords - 7])
+
+                                let circle = document.createElementNS("http://www.w3.org/2000/svg", "circle")
+                                
+                                circle.setAttribute("class", "circle")
+                                selectedParts.push([x, y])
+                                circle.setAttribute("cx", leftCoords * (container.clientWidth / 8) + 25 - (container.clientWidth / 8))
+                                circle.setAttribute("cy", topCoords * (container.clientHeight / 8) + 25 - (container.clientWidth / 8))
+                                circle.setAttribute("r", 15)
+                                circle.style.stroke = "green"
+                                circle.addEventListener("click", (e) => {
+                                    setPiece(e)
+                                    document.getElementsByClassName("chessPiece")[((topCoords - 1) * 8) + leftCoords + 7].innerHTML = " "
+                                    chessPieces[topCoords][leftCoords - 1] = "  "
+                                })
+
+                                container.appendChild(circle)
+
+                                attackList.push([leftCoords - 1, topCoords])
+                            }
+                            if(chessPieces[topCoords - 1][leftCoords] == "  "){
                                 moveSpace(leftCoords, topCoords - 1)
                             }
                             break
