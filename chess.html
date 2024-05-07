@@ -4,7 +4,7 @@
     </head>
     <body style="background-color: #24242a; margin: 0px;">
         <div class="playSide" style = "top: 0%"> 
-            <div style="left: 10%; position: relative; top: 50%; height: 25%; max-width: 300px; transform: translate(0px, -50%); display: flex;">
+            <div style="left: 10%; position: relative; top: 50%; height: 22px; max-width: 300px; transform: translate(0px, -50%); display: flex;">
                 <img></img>
                 <p class="playText">
                     AI (Black)
@@ -12,14 +12,54 @@
             </div>
         </div>
         <div class="playSide" style = "filter: invert(1);">
-            <div style="left: 10%; position: relative; top: 50%; height: 25%; max-width: 300px; transform: translate(0px, -50%); display: flex;">
+            <div style="left: 10%; position: relative; top: 50%; height: 17px; max-width: 300px; transform: translate(0px, -50%); display: flex;">
                 <img></img>
                 <p class="playText">
                     You (White)
                 </p>
             </div>
         </div>
-
+        <div style="
+            width: 100%;
+            position: absolute;
+            height: max-content;
+            top: calc(90% - 19px);
+            display: flex;
+        "><button style="
+            background-color: royalblue;
+            filter: saturate(5);
+            border: 0px;
+            padding: 10px;
+            top: -16px;
+            left: 1px;
+            position: relative;
+            cursor: pointer;
+            width: calc(50%);
+            color: white;
+            opacity: 50%;
+            border-top-left-radius: 5000px;
+        "><p style="
+            margin: 0px;
+        ">Castle Queen's Side</p></button><div style="
+            width: 8px;
+            height: 35px;
+            background-color: gray;
+            top: -16px;
+            position: relative;
+        "></div><button style="
+            background-color: midnightblue;
+            border: 0px;
+            top: -16px;
+            height: 35px;
+            position: relative;
+            /* border-left: solid 4px gray; */
+            width: calc(50%);
+            color: white;
+            opacity: 50%;
+            border-top-right-radius: 5000px;
+        "><p style="
+            margin: 0px;
+        ">Castle King’s Side</p></button></div>
         <svg width="400" height="400" viewBox="0 0 400 400" class="chessBoard"></svg>
         <svg width="400" height="400" viewBox="0 0 400 400" class="chessBoard"></svg>
 
@@ -48,6 +88,7 @@
                 top: 90%; 
                 height: 10%; 
                 width: 100%; 
+                z-index: 5;
                 background-color: #40415e;
             }
             .chessBoard{
@@ -106,11 +147,13 @@
             container.addEventListener("mousemove", (e) => {gameOperator(e)})
 
             function opponentMoves(formerX, formerY, latterX, latterY){
-                var oldPiece = document.getElementsByClassName("chessPiece")[latterY * 8 + latterX].textContent
-                chessPieces[latterY][latterX] = chessPieces[formerY][formerX]
-                chessPieces[formerY][formerX] = oldPiece
+                let oldPiece = chessPieces[formerY][formerX]
+                console.log("Former Piece is", oldPiece, "New Position is", `(${latterX}, ${latterY})`)
+                chessPieces[latterY][latterX] = oldPiece
+                chessPieces[formerY][formerX] = "  "
+                console.log("Former Piece is", oldPiece)
                 document.getElementsByClassName("chessPiece")[latterY * 8 + latterX].textContent = document.getElementsByClassName("chessPiece")[formerY * 8 + formerX].textContent
-                document.getElementsByClassName("chessPiece")[formerY * 8 + formerX].textContent = oldPiece
+                document.getElementsByClassName("chessPiece")[formerY * 8 + formerX].textContent = " "
                 if(chessPieces[latterY][latterX] != "  "){
                     document.getElementsByClassName("chessPiece")[formerY * 8 + formerX].textContent = " "
                 }
@@ -120,8 +163,8 @@
             }
 
             function gameOperator(e){
-                var leftCoords = Math.floor((e.clientX -container.getBoundingClientRect().left) / (container.clientWidth / 8))
-                var topCoords = Math.floor((e.clientY -container.getBoundingClientRect().top) / (container.clientHeight / 8))
+                var leftCoords = Math.floor((e.clientX - container.getBoundingClientRect().left) / (container.clientWidth / 8))
+                var topCoords = Math.floor((e.clientY - container.getBoundingClientRect().top) / (container.clientHeight / 8))
                 console.log("Coords", leftCoords, topCoords)
                 switch(playStage){
                     case "selectPiece":
@@ -176,11 +219,59 @@
                             }
                             if(chessPieces[topCoords - 1][leftCoords + 1].slice(0, 1) == "B"){
                                 console.log("Is Attacking Piece")
-                                document.getElementsByClassName("chessPiece")[topCoords * 8 + leftCoords - 2].style.fill = "green"
+                                document.getElementsByClassName("chessPiece")[topCoords * 8 + leftCoords - 7].style.fill = "green"
                                 console.log("Attacking piece should be", document.getElementsByClassName("chessPiece")[topCoords * 8 + leftCoords + 1])
                                 attackList.push([leftCoords + 1, topCoords - 1])
                             }
-                            if(!(chessPieces[topCoords - 1][leftCoords + 1].slice(0, 1) == "B" || chessPieces[topCoords - 1][leftCoords - 1].slice(0, 1) == "B")){
+                            if(chessPieces[topCoords][leftCoords + 1].slice(0, 1) == "B" && topCoords == 3){
+                                console.log("Is Attacking Piece at", `(${leftCoords}, ${topCoords})`)
+                                document.getElementsByClassName("chessPiece")[topCoords * 8 + leftCoords - 9].style.fill = "green"
+                                console.log("Attacking piece should be", document.getElementsByClassName("chessPiece")[topCoords * 8 + leftCoords - 9])
+
+                                let circle = document.createElementNS("http://www.w3.org/2000/svg", "circle")
+                                
+                                circle.setAttribute("class", "circle")
+                                selectedParts.push([x, y])
+                                circle.setAttribute("cx", leftCoords * (container.clientWidth / 8) + 25 + (container.clientWidth / 8))
+                                circle.setAttribute("cy", topCoords * (container.clientHeight / 8) + 25 - (container.clientWidth / 8))
+                                circle.setAttribute("r", 15)
+                                circle.style.stroke = "green"
+                                circle.addEventListener("click", (e) => {
+                                    setPiece(e)
+                                    document.getElementsByClassName("chessPiece")[((topCoords - 1) * 8) + leftCoords + 9].innerHTML = " "
+                                    chessPieces[topCoords][leftCoords + 1] = "  "
+                                })
+
+                                console.log("Attacking", (topCoords * 8) + leftCoords + 8)
+
+                                container.appendChild(circle)
+
+                                attackList.push([leftCoords + 1, topCoords])
+                            }
+                            if(chessPieces[topCoords][leftCoords - 1].slice(0, 1) == "B" && topCoords == 3){
+                                console.log("Is Attacking Piece at", `(${leftCoords}, ${topCoords})`)
+                                document.getElementsByClassName("chessPiece")[topCoords * 8 + leftCoords - 7].style.fill = "green"
+                                console.log("Attacking piece should be", document.getElementsByClassName("chessPiece")[topCoords * 8 + leftCoords - 7])
+
+                                let circle = document.createElementNS("http://www.w3.org/2000/svg", "circle")
+                                
+                                circle.setAttribute("class", "circle")
+                                selectedParts.push([x, y])
+                                circle.setAttribute("cx", leftCoords * (container.clientWidth / 8) + 25 - (container.clientWidth / 8))
+                                circle.setAttribute("cy", topCoords * (container.clientHeight / 8) + 25 - (container.clientWidth / 8))
+                                circle.setAttribute("r", 15)
+                                circle.style.stroke = "green"
+                                circle.addEventListener("click", (e) => {
+                                    setPiece(e)
+                                    document.getElementsByClassName("chessPiece")[((topCoords - 1) * 8) + leftCoords + 7].innerHTML = " "
+                                    chessPieces[topCoords][leftCoords - 1] = "  "
+                                })
+
+                                container.appendChild(circle)
+
+                                attackList.push([leftCoords - 1, topCoords])
+                            }
+                            if(chessPieces[topCoords - 1][leftCoords] == "  "){
                                 moveSpace(leftCoords, topCoords - 1)
                             }
                             break
@@ -374,6 +465,87 @@
                 // attackPiece.removeEventListener("mouseup", attackPiece(attackingPiece, attackedPiece))
                 return
             }
+
+            function reversePiece(uciMove){
+                var reversePieceMove = {
+                    "R":[
+                        ["Slopes", Infinity, 0]
+                    ],
+                    "B":[
+                        ["Slopes", 1, -1]
+                    ]
+                }
+                var alphabet = ["A", "B", "C", "D", "E", "F", "G", "H"]
+                var localPiece = reversePieceMove[uciMove.slice(0, 1)]
+                var slopeCalc = function(x1, x2, y2, y1){
+                    var pieceSlope = (y2 - y1) / (x2 - x1)
+                    console.log("Piece Slope is", pieceSlope)
+                    console.log("Inputed Pieces are", `(${y2} - ${y1})(${x2} - ${x1})`)
+                    return pieceSlope
+                }
+                console.log("Local Piece", uciMove.slice(0, 1), localPiece)
+                if(uciMove.slice(0, 1) == "N"){ // < Need exception for pawns
+                    return
+                }
+                // o-o-o > 
+                for(var chessCheckY = 0; chessCheckY < 8; chessCheckY++){
+                    console.log("Starting rows are", chessCheckY)
+                    console.log("Checking", chessPieces[chessCheckY].indexOf("B" + uciMove.slice(0, 1)))
+                    if(chessPieces[chessCheckY].indexOf("B" + uciMove.slice(0, 1)) > -1){
+                        var pieceSlope = slopeCalc(chessPieces[chessCheckY].indexOf("B" + uciMove.slice(0, 1)), 
+                        chessCheckY, 
+                        alphabet.indexOf(uciMove.slice(1, 2)), 
+                        parseInt(uciMove.slice(2, 3)))
+                        console.log("Slope for this is", pieceSlope, "in", Object.values(reversePieceMove[uciMove.slice(0, 1)]))
+                        if(Object.keys(reversePieceMove[uciMove.slice(0, 1)]).values(pieceSlope)){
+                            console.log("Valid Move")
+                        }
+                    }
+                    if(chessPieces[chessCheckY].lastIndexOf("B" + uciMove.slice(0, 1)) > -1){
+                        var pieceSlope = slopeCalc(chessPieces[chessCheckY].lastIndexOf("B" + uciMove.slice(0, 1)),
+                        chessCheckY, 
+                        alphabet.indexOf(uciMove.slice(1, 2)), 
+                        parseInt(uciMove.slice(2, 3)))
+                        console.log("Last Slope for this is", pieceSlope)
+                        if(Object.keys(reversePieceMove[uciMove.slice(0, 1)]).values(pieceSlope)){
+                            console.log("Valid Move")
+                        }
+                    }
+                }
+            }
+            for(let playSideChildren = 0; playSideChildren < document.getElementsByClassName("playSide").length; playSideChildren++){
+                document.getElementsByClassName("playSide")[playSideChildren].addEventListener("mouseover", (e) => { 
+                    if(document.getElementsByTagName("body")[0].clientHeight > 600){
+                        return
+                    }
+                    console.log("Mouse over element")
+                    document.getElementsByClassName("playSide")[playSideChildren].style.opacity = "1"
+                })
+            }
+            for(let playSideChildren = 0; playSideChildren < document.getElementsByClassName("playSide").length; playSideChildren++){
+                document.getElementsByClassName("playSide")[playSideChildren].addEventListener("mouseout", (e) => {
+                    if(document.getElementsByTagName("body")[0].clientHeight > 600){
+                        return
+                    }                
+                    console.log("Mouse over element")
+                    document.getElementsByClassName("playSide")[playSideChildren].style.opacity = "0"
+                })
+            }
+            window.addEventListener("resize", () => {resizePlaySide()})
+            function resizePlaySide(){
+                console.log("Resize is being called")
+                if(document.getElementsByTagName("body")[0].clientHeight <= 600){
+                    for(let playSideChildren = 0; playSideChildren < document.getElementsByClassName("playSide").length; playSideChildren++){
+                        document.getElementsByClassName("playSide")[playSideChildren].style.opacity = "0"
+                    }
+                }
+                else{
+                    for(let playSideChildren = 0; playSideChildren < document.getElementsByClassName("playSide").length; playSideChildren++){
+                        document.getElementsByClassName("playSide")[playSideChildren].style.opacity = "1"
+                    }
+                }                
+            }
+            resizePlaySide()
         </script>
     </body>
 </html>
