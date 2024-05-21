@@ -1,0 +1,259 @@
+<html style="background-color: #1f1f21;">
+    <head>
+        <title>3D Ray Casting</title>
+        <style>
+            .displayBars{
+                position: relative;
+                height: 50px;
+                background-color: #2d2d67;
+                color: white;
+                padding: 0px 4px;
+                overflow: scroll;
+                scrollbar-color: white transparent;
+            }
+            p {
+                color: white;
+                margin: 0px;
+            }
+            * {
+                position: relative;
+            }
+            #promptBackground{
+                background-color: rgba(0, 0, 0, 0.8);
+                width: 100%;
+                height: 100%;
+                left: 0;
+                top: 0;
+            }
+            #prompt{
+                left: 0;
+                top: 0;
+                position: fixed;
+                height: 100%;
+                width: 100%;
+                margin: 0px;
+                border: 0px;
+                padding: 0px;
+                background: transparent;
+            }
+            #keyboardInputPrompt{
+                position: fixed;
+                top: 35%;
+                height: 30%;
+                width: 80%;
+                background-color: rgba(25, 25, 39, 1);
+                left: 10%;
+                border-radius: 8px;
+            }
+            #keyboardInputBar{
+                position: absolute;
+                bottom: 72px;
+                height: fit-content;
+                background-color: rgba(0, 0, 0, 0.75);
+                border-radius: 12px;
+                width: 92%;
+                padding: 12px;
+                left: 50%;
+                transform: translate(-50%, 0%);
+            }
+            #keyboardInputBarLines{
+                left: 0;
+                width: 100%;
+                text-align: center;
+                top: 50%;
+                display: block;
+                color: white;
+                font-weight: 600;
+                font-size: x-large;
+            }
+            #keyboardInputSubmitTurns{
+                background-color: royalblue;
+                color: white;
+                border: solid 2px white;
+                border-radius: 6px;
+                font-size: 100%;
+                font-weight: 600;
+                height: 15%;
+                bottom: 24px;
+                right: 4%;
+                position: absolute;
+                cursor: pointer;
+            }
+            #lowerMoveBarList{
+                margin: 0px;
+                height: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: max-content;
+            }
+        </style>
+    </head>
+    <body style="display: flex; margin: 8px; overflow: hidden;">
+        <section style="width: 80%;" class = "row">
+            <svg style="width: 100%; height: calc(100% - 52px); background-color: darkslategray; border-radius: 8px 8px 0px 0px;"></svg>
+            <section class = "displayBars" style="display: flex; border-radius: 0px 0px 8px 8px; border-top: solid 2px gray;">
+                <div style="width: 100%; padding: 0px 4px;">
+                    <p id = "lowerMoveBarList">
+                        Move List: A
+                    </p>
+                </div>
+            </section>
+        </section>
+        <div id = "sideDivider" style="width: 15px;background-color: rgba(127, 127, 127, 0.3);margin: 0px 8px;cursor: ew-resize;"></div>
+        <section style="width: calc(40% - 10px);" class = "row">
+            <header style="border-radius: 8px 8px 0px 0px;" class = "displayBars">
+                <h1 style="margin: 0px;top: 50%;transform: translateY(-50%);left: 10px;font-weight: 500;font-family: monospace;">
+                    Moves List
+                </h1>
+                <button style="position: absolute; right: 8px; background: transparent; top: 50%; transform: translateY(-50%); color: white; border: 0px;">
+                    Set
+                </button>
+            </header>
+            <main style="border: solid 2px gray;border-width: 2px 0px;padding: 4px 8px;overflow-y: scroll; height: calc(100vh - 128px); background-color: #1f1f31; font-family: monospace; font-size: large; padding: 4px 0px 4px 12px;">
+                <p>
+                    Instruction A
+                </p>
+            </main>
+            <footer class = "displayBars" style="border-radius: 0px 0px 8px 8px">
+                <button style="position: absolute; right: 50%; top: 50%; transform: translate(50%, -50%); background-color: #224e9e; border-radius: 6px; padding: 10px 8px; border: 0px; width: 80%; cursor: pointer;">
+                    <p style="margin: 0px;width: 100%;height: 16px; font-family: monospace;word-spacing: 0px;">
+                        Next Step
+                    </p>
+                </button>     
+            </footer>
+        </section>
+        <dialog open="" id = "prompt">
+            <div id="promptBackground"></div>
+            <div id="keyboardInputPrompt">
+                <main style="height: calc(100% - 24px);">
+                    <header style="margin: 24px 0px 0px 0px;">
+                        <h1 style="margin: 0; text-align: center; color: white; font-family: monospace;">
+                            Input Keys
+                        </h1>
+                    </header>
+                    <div id = "keyboardInputBar">
+                        <code id = "keyboardInputBarLines"> 
+                            A
+                        </code>
+                    </div>
+                    <button id="keyboardInputSubmitTurns" onclick="document.getElementsByTagName('dialog')[0].close()">
+                        Submit Turns
+                    </button>  
+                </main>
+            </div>
+        </dialog>
+        <script>
+            var mapSize = [24, 24]
+            var gameMap = Array.apply(null, Array(mapSize[1])).map(() => {return Array.apply(null, Array(mapSize[0])).map(() => {return " "})})
+            var playerMoves = ["a"]
+            var playerCoords = [Math.floor(mapSize[0] / 2 + 0.5), Math.floor(mapSize[1] / 2 + 0.5)]
+            var moveDivider = false
+
+            document.addEventListener("keydown", (e) => {
+                console.log("Key is", e.key)
+                if(e.key == "Backspace" && playerMoves.length != 0){
+                    document.getElementById("keyboardInputBarLines").innerText = document.getElementById("keyboardInputBarLines").innerText.slice(0, document.getElementById("keyboardInputBarLines").innerText.length - 1)
+                    document.getElementById("lowerMoveBarList").innerText = document.getElementById("lowerMoveBarList").innerText.slice(0, document.getElementById("lowerMoveBarList").innerText.length - 1)
+                    playerMoves.splice(playerMoves.length - 1)
+                }
+                else if(e.key == "Enter"){
+                    document.getElementsByTagName("dialog")[0].close()
+                }
+                else if((e.key == "w" || e.key == "a" || e.key == "s" || e.key == "d") && playerMoves.length < 76){
+                    playerMoves.push(e.key)
+                    document.getElementById("keyboardInputBarLines").innerText +=` ${e.key.toUpperCase()}`
+                    document.getElementById("lowerMoveBarList").innerText += ` ${e.key.toUpperCase()}`
+                }
+            })
+
+            document.getElementById("sideDivider").addEventListener("mousedown", (e) => {
+                moveDivider = true
+                console.log("Mouse Held Down")
+            })
+
+            document.addEventListener("mousemove", (e) => {
+                var dividerShift = Math.floor(e.clientX / (window.innerWidth - 16) * 10000 - 44) / 100
+                if(!moveDivider || dividerShift <= 20 || dividerShift >= 80){
+                    return
+                }
+                document.getElementsByClassName("row")[0].style.width = `calc(${dividerShift}% - 13px)`
+                document.getElementsByClassName("row")[1].style.width = `calc(${100 - dividerShift}% - 7px)`
+            })
+
+            document.getElementById("sideDivider").addEventListener("mouseup", (e) => {
+                moveDivider = false
+                console.log("Mouse Held Up")
+            })
+
+            function createLine(coords){
+                coords.push(coords[0])
+                console.log("Coords are", coords)
+                coords.forEach((e, i) => {
+                    if(i >= coords.length - 1){
+                        return
+                    }
+                    var ySlope = (coords[i + 1][1] - coords[i][1]) / (coords[i + 1][0] - coords[i][0])
+                    var xSlope = (coords[i + 1][0] - coords[i][0]) / Math.abs(coords[i + 1][0] - coords[i][0])
+                    if(Infinity == xSlope){
+                        xSlope = 1
+                    }
+                    if(Infinity == ySlope){
+                        ySlope = 1
+                    }
+                    if(-Infinity == xSlope){
+                        xSlope = -1
+                    }
+                    if(-Infinity == ySlope){
+                        ySlope = -1
+                    }
+
+                    var currentCoord = coords[i]
+                    console.log(xSlope, ySlope, currentCoord, coords[i])
+                    gameMap[currentCoord[1]][currentCoord[0]] = "x"
+                    while(currentCoord[0] != coords[i + 1][0] && currentCoord[1] != coords[i + 1][1]){
+                        console.log(currentCoord, "is not", coords[i + 1])
+                        currentCoord[1] += ySlope
+                        currentCoord[0] += xSlope
+                        gameMap[currentCoord[1]][currentCoord[0]] = "x"
+                    }
+                })
+            }
+
+            createLine([[0, 0], [5, 5], [10, 0]])
+
+            gameMap[playerCoords[1]][playerCoords[0]] = "o"
+
+            function registerMoves(){
+                var movePlayer = (x, y) => {
+                    console.log("Checking", playerCoords[1] + y, playerCoords[0] + x)
+                    if(gameMap[playerCoords[1] + y][playerCoords[0] + x] != " "){
+                        console.log("Hit collision")
+                        return
+                    }
+                    gameMap[playerCoords[1]][playerCoords[0]] = " "
+                    gameMap[playerCoords[1] + y][playerCoords[0] + x] = "o"
+                    playerCoords[0] += x
+                    playerCoords[1] += y
+                }
+                playerMoves.forEach((e, i) => {
+                    console.log("Moves are", playerMoves[i])
+                    switch(playerMoves[i]){
+                        case "w":
+                            movePlayer(0, 1)
+                            break
+                        case "a":
+                            movePlayer(-1, 0)
+                            break
+                        case "s":
+                            movePlayer(1, 0)
+                            break
+                        case "d":
+                            movePlayer(0, -1)
+                            break
+                    }
+                })
+            }
+            registerMoves()
+        </script>
+    </body>
+</html>
