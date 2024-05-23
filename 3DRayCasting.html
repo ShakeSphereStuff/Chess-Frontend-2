@@ -148,6 +148,7 @@
             var playerMoves = ["a"]
             var playerCoords = [Math.floor(mapSize[0] / 2 + 0.5), Math.floor(mapSize[1] / 2 + 0.5)]
             var moveDivider = false
+            var rotation = 0
 
             document.addEventListener("keydown", (e) => {
                 console.log("Key is", e.key)
@@ -239,16 +240,22 @@
                     console.log("Moves are", playerMoves[i])
                     switch(playerMoves[i]){
                         case "w":
-                            movePlayer(0, 1)
+                            if (rotation === 0) movePlayer(0, 1);      // Up
+                            if (rotation === 90) movePlayer(1, 0);     // Right
+                            if (rotation === 180) movePlayer(0, -1);   // Down
+                            if (rotation === 270) movePlayer(-1, 0);
                             break
                         case "a":
-                            movePlayer(-1, 0)
+                            rotation = (rotation + 270) % 360;  
                             break
                         case "s":
-                            movePlayer(1, 0)
+                            if (rotation === 0) movePlayer(0, -1);     // Down
+                            if (rotation === 90) movePlayer(-1, 0);    // Left
+                            if (rotation === 180) movePlayer(0, 1);    // Up
+                            if (rotation === 270) movePlayer(1, 0); 
                             break
                         case "d":
-                            movePlayer(0, -1)
+                            rotation = (rotation + 90) % 360;
                             break
                     }
                 })
