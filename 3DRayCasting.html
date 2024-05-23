@@ -186,43 +186,46 @@
             })
 
             function createLine(coords){
+                console.log("Coords are", String(coords))
                 coords.push(coords[0])
-                console.log("Coords are", coords)
                 coords.forEach((e, i) => {
+                    console.log("Coords are", String(coords))
                     if(i >= coords.length - 1){
                         return
                     }
+                    console.log("New check with coords with", coords[i], coords[i + 1])
+                    var xSlope = /*1/ySlope*/ Math.max(Math.min(1, (coords[i + 1][0] - coords[i][0]) / Math.abs(coords[i + 1][0] - coords[i][0])), -1)
                     var ySlope = (coords[i + 1][1] - coords[i][1]) / (coords[i + 1][0] - coords[i][0])
-                    var xSlope = (coords[i + 1][0] - coords[i][0]) / Math.abs(coords[i + 1][0] - coords[i][0])
-                    if(Infinity == xSlope){
-                        xSlope = 1
+                    if(xSlope < 0){
+                        ySlope = (coords[i + 1][1] - coords[i][1]) / (coords[i + 1][0] - coords[i][0]) * -1
                     }
-                    if(Infinity == ySlope){
+                    if(isNaN(xSlope)){
+                        xSlope = 0
+                    }
+                    if(ySlope == Infinity){
                         ySlope = 1
                     }
-                    if(-Infinity == xSlope){
-                        xSlope = -1
+                    
+                    var currentCoord = [];
+                    for(var ct = 0; ct < coords[i].length; ct++){
+                        currentCoord.push(parseInt(String(coords[i][ct])))
                     }
-                    if(-Infinity == ySlope){
-                        ySlope = -1
-                    }
-
-                    var currentCoord = coords[i]
-                    console.log(xSlope, ySlope, currentCoord, coords[i])
+                    console.log("currentCoord are", currentCoord)
                     gameMap[currentCoord[1]][currentCoord[0]] = "x"
-                    while(currentCoord[0] != coords[i + 1][0] && currentCoord[1] != coords[i + 1][1]){
-                        console.log(currentCoord, "is not", coords[i + 1])
+                    while( !(currentCoord[0] == coords[i + 1][0]) || !(currentCoord[1] == coords[i + 1][1])){
                         currentCoord[1] += ySlope
                         currentCoord[0] += xSlope
+                        console.log("Coords are", String(currentCoord[0]), String(currentCoord[1]))
+                        console.log("Checking", `(${xSlope}, ${ySlope})`)
                         gameMap[currentCoord[1]][currentCoord[0]] = "x"
                     }
                 })
             }
 
-            createLine([[0, 0], [5, 5], [10, 0]])
+            createLine([[0, 0], [0, 10], [5, 5]])
 
             gameMap[playerCoords[1]][playerCoords[0]] = "o"
-
+            
             function registerMoves(){
                 var movePlayer = (x, y) => {
                     console.log("Checking", playerCoords[1] + y, playerCoords[0] + x)
