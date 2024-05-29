@@ -1,0 +1,145 @@
+<html>
+    <head>
+        <title>I'm starting way too many projects at the same time</title>
+        <link rel = "stylesheet" href = "characterStyles.css">
+    </head>
+    <!--body style = "margin: 0px; background-color: #231d45"-->
+    <body style = "margin: 0px; background-color: white">
+        <svg id = "background"></svg>
+        <svg id = "foreground"></svg>
+        <header id = "playerStats">
+            <div id = "playerPicture"></div>
+            <div id = "playerInfo">
+                <h1 id = "playerName">Player Name</h1>
+                <div id = "healthBarBackground"></div>
+                <div id = "healthBar"></div>
+            </div>
+        </header>
+        <dialog id = "showPrompt" open>
+            <div id = "promptContainer">
+                <header id = "showPromptTitle">Enter Payments</header>
+                <main id = "showPromptContent">
+
+                </main>
+            </div>
+        </dialog>
+        <script>
+            var background;
+            var tileXSquares;
+            var tileYSquares;
+            var squareXSizing;
+            var squareYSizing;
+            var squareXOffset;
+            var squareYOffset;
+
+            // I want for my background to center the shrinking of the background on both sides
+
+            squareXOffset = window.innerWidth
+            squareYOffset = window.innerHeight
+
+            function createBackground(){
+                background.setAttribute("height", window.innerHeight)
+                background.setAttribute("width", window.innerWidth)
+                background.setAttribute("viewBox", `0 0 ${window.innerWidth} ${window.innerHeight}`)
+                background
+
+                tileXSquares = background.clientWidth / 128
+                tileYSquares = background.clientHeight / 128
+
+                squareXSizing = 128
+                squareYSizing = 128
+
+                console.log("Grid Values are", tileXSquares, tileYSquares)
+
+                // h = (s % t) * (-(s % t) + t) / 2 + 1 
+
+                for(var y = 0; y <= tileYSquares + 2; y++){
+                    for(var x = 0; x <= tileXSquares + 2; x++){
+                        var newSquare = document.createElementNS("http://www.w3.org/2000/svg", "rect")
+                        newSquare.setAttribute("width", squareXSizing)
+                        newSquare.setAttribute("height", squareYSizing)
+                        newSquare.setAttribute("x", Math.floor( // squareXSizing * x
+                            (x * (tileXSquares) - (
+                                (window.innerWidth % squareXOffset) / (squareXOffset * 2)
+                            )) * tileXSquares
+                        ))// (window.innerWidth % squareXSizing) * (-(window.innerWidth % squareXSizing) + squareXSizing) / 2 + 1)
+                        newSquare.setAttribute("y", squareYSizing * y - 64)// (window.innerHeight % squareYSizing) * (-(window.innerHeight % squareYSizing) + squareYSizing) / 2 + 1)
+                        newSquare.setAttribute("fill", (x + y) % 2  == 0 ? "lightgreen" : "#375f37")
+                        if(Math.floor((tileXSquares + 1) / 2) == x){
+                            newSquare.setAttribute("fill", "red")
+                        }
+                        background.appendChild(newSquare)
+                    }
+                    console.log("X Spacing is", y, "input and outputs", Math.floor(
+                         // squareXSizing * x
+                            (y * (tileXSquares - 1) - (
+                                (window.innerWidth % squareXOffset) / (squareXOffset * 2)
+                            )) * tileXSquares
+                    ))
+                }
+
+                console.log("Square Width is", x, "Square Y is", y)
+            }
+
+            document.getElementsByTagName("dialog")[0].close()
+
+            function createForeground(){
+                var foreground = document.getElementById("foreground")
+                var player = document.createElementNS("http://www.w3.org/2000/svg", "image")
+                player.setAttribute("href", "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.tZq4FbHI-2VuBSGkHjfyfAHaHa%26pid%3DApi&f=1&ipt=5f646f6c231fdaa747a2158ac93d8a710fd0b6df2bd929c696ae26141f668843&ipo=images")
+                player.id = "player"
+                player.setAttribute("height", "128")
+                player.setAttribute("width", "128")
+                foreground.appendChild(player)
+                player.setAttribute("x", (-window.innerWidth % 128) + (Math.floor(tileXSquares + 1)) * 64)
+                player.setAttribute("y", (window.innerHeight / 2) + (window.innerHeight / 10) + 25 - parseInt(player.getAttribute("height")))
+            }
+
+            function resizeScene(){
+                background = document.getElementById("background")
+                createBackground()
+                createForeground()
+            }
+
+            document.addEventListener("mouseover", () => {console.log("Hello!")})
+
+            window.onresize = function(){
+                console.log("Resize Happening")
+                document.getElementById("foreground").remove()
+                document.getElementById("background").remove()
+                var foreground = document.createElementNS("http://www.w3.org/2000/svg", "svg") 
+                var background = document.createElementNS("http://www.w3.org/2000/svg", "svg")
+                foreground.id = "foreground"
+                background.id = "background"
+                document.body.appendChild(background)
+                document.body.appendChild(foreground)
+                resizeScene()
+            }
+
+            function movePlayer(keypress){
+                var player = document.getElementById("player")
+
+                console.log("Square Values are", tileXSquares, tileYSquares)
+
+                switch(keypress){
+                    case "w":
+                        player.setAttribute("y", parseInt(player.getAttribute("y")) - 127)
+                        break
+                    case "a":
+                        player.setAttribute("x", parseInt(player.getAttribute("x")) - 127)
+                        break
+                    case "s":
+                        player.setAttribute("y", parseInt(player.getAttribute("y")) + 127)
+                        break
+                    case "d":
+                        player.setAttribute("x", parseInt(player.getAttribute("x")) + 127)
+                        break
+                }
+            }
+
+            document.addEventListener("keydown", (e) => {movePlayer(e.key)})
+
+            resizeScene()
+        </script>
+    </body>
+</html>

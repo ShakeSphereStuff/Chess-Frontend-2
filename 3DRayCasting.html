@@ -1,8 +1,12 @@
-<html style="background-color: #1f1f21;">
+<html style="background-color: #1f1f21">
     <head>
         <title>3D Ray Casting</title>
         <style>
-            .displayBars{
+            p {
+                color: white;
+                margin: 0px;
+            }
+            .displayBars {
                 position: relative;
                 height: 50px;
                 background-color: #2d2d67;
@@ -11,21 +15,17 @@
                 overflow: scroll;
                 scrollbar-color: white transparent;
             }
-            p {
-                color: white;
-                margin: 0px;
-            }
             * {
                 position: relative;
             }
-            #promptBackground{
+            #promptBackground {
                 background-color: rgba(0, 0, 0, 0.8);
                 width: 100%;
                 height: 100%;
                 left: 0;
                 top: 0;
             }
-            #prompt{
+            #prompt {
                 left: 0;
                 top: 0;
                 position: fixed;
@@ -36,7 +36,7 @@
                 padding: 0px;
                 background: transparent;
             }
-            #keyboardInputPrompt{
+            #keyboardInputPrompt {
                 position: fixed;
                 top: 35%;
                 height: 30%;
@@ -45,7 +45,7 @@
                 left: 10%;
                 border-radius: 8px;
             }
-            #keyboardInputBar{
+            #keyboardInputBar {
                 position: absolute;
                 bottom: 72px;
                 height: fit-content;
@@ -56,7 +56,7 @@
                 left: 50%;
                 transform: translate(-50%, 0%);
             }
-            #keyboardInputBarLines{
+            #keyboardInputBarLines {
                 left: 0;
                 width: 100%;
                 text-align: center;
@@ -66,7 +66,7 @@
                 font-weight: 600;
                 font-size: x-large;
             }
-            #keyboardInputSubmitTurns{
+            #keyboardInputSubmitTurns {
                 background-color: royalblue;
                 color: white;
                 border: solid 2px white;
@@ -79,50 +79,138 @@
                 position: absolute;
                 cursor: pointer;
             }
-            #lowerMoveBarList{
+            #lowerMoveBarList {
                 margin: 0px;
                 height: 15px;
                 top: 50%;
                 transform: translateY(-50%);
                 width: max-content;
             }
+            #test:hover {
+                fill: gray;
+            }
         </style>
     </head>
-    <body style="display: flex; margin: 8px; overflow: hidden;">
-        <section style="width: 80%;" class = "row">
-            <svg style="width: 100%; height: calc(100% - 52px); background-color: darkslategray; border-radius: 8px 8px 0px 0px;"></svg>
-            <section class = "displayBars" style="display: flex; border-radius: 0px 0px 8px 8px; border-top: solid 2px gray;">
-                <div style="width: 100%; padding: 0px 4px;">
-                    <p id = "lowerMoveBarList">
-                        Move List: A
-                    </p>
+    <body style="display: flex; margin: 8px; overflow: hidden">
+        <section style="width: 80%" class="row">
+            <div style="
+                width: 192px;
+                height: 48px;
+                left: calc(50% - 104px);
+                border-radius: 0px 0px 6px 6px;
+                z-index: 5;
+                padding: 0px 8px;
+                position: absolute;
+                background-color: #2d2d67;
+            ">
+                <div style="top: 50%; left: 50%; width: fit-content; transform: translate(-50%, -50%);">
+                    <button style="background-color: #224e9e;border: none;color: white;padding: 6px 8px;font-family: monospace;border-radius: 6px;cursor: pointer;" onclick = "showWalls()">
+                        Show Walls
+                    </button>
+                    <button style="background-color: #224e9e;border: none;color: white;padding: 6px 8px;font-family: monospace;border-radius: 6px;cursor: pointer; margin-left: 12px" onclick = "runSim()">
+                        Run Sim
+                    </button>
+                </div>
+            </div>
+            <svg style="width: 100%; height: calc(100% - 52px); background-color: darkslategray; border-radius: 8px 8px 0px 0px;" xmlns="http://www.w3.org/2000/svg" id="screen">
+                <defs>
+                    <ellipse id="test" rx="1vw" ry="1vw"></ellipse>
+                    <g id="player" style = "rotate:-45deg;">
+                        <circle fill="pink"></circle>
+                        <circle cx="-0.4vw" r="0.3vw" fill="black" cy="-0.25vw"></circle>
+                        <circle cy="-0.25vw" cx="0.4vw" fill="black" r="0.3vw"></circle>
+                    </g>
+                </defs>
+                <rect width="calc(80% + 2vw)" height="calc(80% + 2vw)" x="calc(10% - 1vw)" y="calc(10% - 1vw)" id="landSquare"></rect>
+                <g id = "buildWallOverlay"></g>
+            </svg>
+            <section class="displayBars" style="display: flex; border-radius: 0px 0px 8px 8px; border-top: solid 2px gray;">
+                <div style="width: 100%; padding: 0px 4px">
+                    <p id="lowerMoveBarList">Move List: A</p>
                 </div>
             </section>
         </section>
-        <div id = "sideDivider" style="width: 15px;background-color: rgba(127, 127, 127, 0.3);margin: 0px 8px;cursor: ew-resize;"></div>
-        <section style="width: calc(40% - 10px);" class = "row">
-            <header style="border-radius: 8px 8px 0px 0px;" class = "displayBars">
-                <h1 style="margin: 0px;top: 50%;transform: translateY(-50%);left: 10px;font-weight: 500;font-family: monospace;">
+        <div
+            id="sideDivider"
+            style="
+                width: 15px;
+                background-color: rgba(127, 127, 127, 0.3);
+                margin: 0px 8px;
+                cursor: ew-resize;
+            "
+        ></div>
+        <section style="width: calc(40% - 10px)" class="row">
+            <header style="border-radius: 8px 8px 0px 0px" class="displayBars">
+                <h1
+                    style="
+                        margin: 0px;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        left: 10px;
+                        font-weight: 500;
+                        font-family: monospace;
+                    "
+                >
                     Moves List
                 </h1>
-                <button style="position: absolute; right: 8px; background: transparent; top: 50%; transform: translateY(-50%); color: white; border: 0px;">
+                <button
+                    style="
+                        position: absolute;
+                        right: 8px;
+                        background: transparent;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        color: white;
+                        border: 0px;
+                    "
+                >
                     Set
                 </button>
             </header>
-            <main style="border: solid 2px gray;border-width: 2px 0px;padding: 4px 8px;overflow-y: scroll; height: calc(100vh - 128px); background-color: #1f1f31; font-family: monospace; font-size: large; padding: 4px 0px 4px 12px;">
-                <p>
-                    Instruction A
-                </p>
+            <main
+                style="
+                    border-width: 2px 0px;
+                    border-radius: 0px 0px 6px 6px;
+                    overflow-y: scroll;
+                    height: calc(100vh - 76px);
+                    background-color: #1f1f31;
+                    font-family: monospace;
+                    font-size: large;
+                    padding: 4px 0px 4px 12px;
+                "
+            >
+                <p>Instruction A</p>
             </main>
-            <footer class = "displayBars" style="border-radius: 0px 0px 8px 8px">
-                <button style="position: absolute; right: 50%; top: 50%; transform: translate(50%, -50%); background-color: #224e9e; border-radius: 6px; padding: 10px 8px; border: 0px; width: 80%; cursor: pointer;">
-                    <p style="margin: 0px;width: 100%;height: 16px; font-family: monospace;word-spacing: 0px;">
+            <!--footer class="displayBars" style="border-radius: 0px 0px 8px 8px">
+                <button
+                    style="
+                        position: absolute;
+                        right: 50%;
+                        top: 50%;
+                        transform: translate(50%, -50%);
+                        background-color: #224e9e;
+                        border-radius: 6px;
+                        padding: 10px 8px;
+                        border: 0px;
+                        width: 80%;
+                        cursor: pointer;
+                    "
+                >
+                    <p
+                        style="
+                            margin: 0px;
+                            width: 100%;
+                            height: 16px;
+                            font-family: monospace;
+                            word-spacing: 0px;
+                        "
+                    >
                         Next Step
                     </p>
-                </button>     
-            </footer>
+                </button>
+            </footer-->
         </section>
-        <dialog open="" id = "prompt">
+        <!--dialog open="" id = "prompt">
             <div id="promptBackground"></div>
             <div id="keyboardInputPrompt">
                 <main style="height: calc(100% - 24px);">
@@ -132,16 +220,16 @@
                         </h1>
                     </header>
                     <div id = "keyboardInputBar">
-                        <code id = "keyboardInputBarLines"> 
+                        <code id = "keyboardInputBarLines">
                             A
                         </code>
                     </div>
                     <button id="keyboardInputSubmitTurns" onclick="document.getElementsByTagName('dialog')[0].close(); registerMoves()">
                         Submit Turns
-                    </button>  
+                    </button>
                 </main>
             </div>
-        </dialog>
+        </dialog-->
         <script>
             var mapSize = [24, 24]
             var gameMap = Array.apply(null, Array(mapSize[1])).map(() => {return Array.apply(null, Array(mapSize[0])).map(() => {return " "})})
@@ -149,121 +237,331 @@
             var playerCoords = [Math.floor(mapSize[0] / 2 + 0.5), Math.floor(mapSize[1] / 2 + 0.5)]
             var moveDivider = false
             var rotation = 0
+            var screen = document.getElementById("screen");
+            var mapSize = [18, 18];
+            var gameMap = Array.apply(null, Array(mapSize[1])).map(() => {
+                return Array.apply(null, Array(mapSize[0])).map(() => {
+                    return " ";
+                });
+            });
+            var playerMoves = ["a"];
+            var moveDivider = false;
+            var isMouseDownCreatingWall = false;
+            var heldMouseCreatingWallCoords = [0, 0]
+            var playerSprite = ""
+            var playerData = {
+              "x": 50,
+              "y": 50,
+              "rotation": 0,
+              "radius": 1
+            }
+            var simRunning = false
+            document.getElementById("player").getElementsByTagName("circle")[0].setAttribute("r", `${playerData["radius"]}vw`)
 
-            document.addEventListener("keydown", (e) => {
-                console.log("Key is", e.key)
-                if(e.key == "Backspace" && playerMoves.length != 0){
-                    document.getElementById("keyboardInputBarLines").innerText = document.getElementById("keyboardInputBarLines").innerText.slice(0, document.getElementById("keyboardInputBarLines").innerText.length - 1)
-                    document.getElementById("lowerMoveBarList").innerText = document.getElementById("lowerMoveBarList").innerText.slice(0, document.getElementById("lowerMoveBarList").innerText.length - 1)
-                    playerMoves.splice(playerMoves.length - 1)
-                }
-                else if(e.key == "Enter"){
-                    document.getElementsByTagName("dialog")[0].close()
-                }
-                else if((e.key == "w" || e.key == "a" || e.key == "s" || e.key == "d") && playerMoves.length < 76){
-                    playerMoves.push(e.key)
-                    document.getElementById("keyboardInputBarLines").innerText +=` ${e.key.toUpperCase()}`
-                    document.getElementById("lowerMoveBarList").innerText += ` ${e.key.toUpperCase()}`
-                }
-            })
-
-            document.getElementById("sideDivider").addEventListener("mousedown", (e) => {
-                moveDivider = true
-                console.log("Mouse Held Down")
-            })
+            document
+                .getElementById("sideDivider")
+                .addEventListener("mousedown", (e) => {
+                    moveDivider = true;
+                    console.log("Mouse Held Down");
+                });
 
             document.addEventListener("mousemove", (e) => {
-                var dividerShift = Math.floor(e.clientX / (window.innerWidth - 16) * 10000 - 44) / 100
-                if(!moveDivider || dividerShift <= 20 || dividerShift >= 80){
-                    return
+                var dividerShift =
+                    Math.floor(
+                        (e.clientX / (window.innerWidth - 16)) * 10000 - 44,
+                    ) / 100;
+                if (!moveDivider || dividerShift <= 20 || dividerShift >= 80) {
+                    return;
                 }
-                document.getElementsByClassName("row")[0].style.width = `calc(${dividerShift}% - 13px)`
-                document.getElementsByClassName("row")[1].style.width = `calc(${100 - dividerShift}% - 7px)`
-            })
+                document.getElementsByClassName("row")[0].style.width =
+                    `calc(${dividerShift}% - 13px)`;
+                document.getElementsByClassName("row")[1].style.width =
+                    `calc(${100 - dividerShift}% - 7px)`;
+            });
 
-            document.getElementById("sideDivider").addEventListener("mouseup", (e) => {
-                moveDivider = false
-                console.log("Mouse Held Up")
-            })
+            document
+                .getElementById("sideDivider")
+                .addEventListener("mouseup", (e) => {
+                    moveDivider = false;
+                    console.log("Mouse Held Up");
+                });
 
-            function createLine(coords){
-                console.log("Coords are", String(coords))
-                coords.push(coords[0])
+            function showWalls(){
+              var buildWallOverlay = document.getElementById("buildWallOverlay")
+              if(document.getElementById("buildWallOverlay").style.display === "none"){
+                document.getElementById("buildWallOverlay").style.display = "block"
+                return
+              }
+              document.getElementById("buildWallOverlay").style.display = "none"
+            }
+
+            function createMap() {
+                var landSquare = document.getElementById("landSquare");
+                var buildWallOverlay = document.getElementById("buildWallOverlay")
+
+                screen.setAttribute("viewBox", `0 0 ${screen.clientWidth} ${screen.clientHeight}`);
+
+                landSquare.setAttribute("fill", "rgb(113 154 154)");
+
+                screen.addEventListener("mousemove", (e) => {
+                    if (isMouseDownCreatingWall) {
+                      document.getElementById("activeWall").setAttribute(
+                          "d",
+                          `M ${heldMouseCreatingWallCoords[0]}, ${heldMouseCreatingWallCoords[1]} L${e.clientX}, ${e.clientY}`,
+                      );
+                      var gridSizeX = ((mapSize[0] - 1) / screen.clientWidth)
+                      var gridSizeY = ((mapSize[1] - 1) / screen.clientHeight)
+                      console.log(
+                        `(${Math.floor((gridSizeX * e.clientX) / 0.8) - Math.floor((gridSizeX * 0.1) / 0.8) - 2},
+                        ${Math.floor((gridSizeY * e.clientY) / 0.8) - Math.floor((gridSizeY * 0.1) / 0.8) - 2} )`
+                      )
+                    }
+                });
+
+
+                screen.addEventListener("mouseup", (e) => {
+                  if(document.getElementById("activeWall")){
+                    var gridSizeX = ((mapSize[0] - 1) / screen.clientWidth)
+                    var gridSizeY = ((mapSize[1] - 1) / screen.clientHeight)
+                    var pixelsToCoordsX = (i) => {
+                      return Math.floor((gridSizeX * i) / 0.8) - Math.floor((gridSizeX * 0.1) / 0.8) - 2
+                    }
+                    var pixelsToCoordsY = (i) => {
+                      return Math.floor((gridSizeY * i) / 0.8) - Math.floor((gridSizeY * 0.1) / 0.8) - 2
+                    }
+                    document.getElementById("buildWallOverlay").getElementsByTagName("use")[
+                      (Math.floor((gridSizeX * heldMouseCreatingWallCoords[0]) / 0.8) - Math.floor((gridSizeX * 0.1) / 0.8) - 2)
+                      + (Math.floor((gridSizeY * heldMouseCreatingWallCoords[1]) / 0.8) - Math.floor((gridSizeY * 0.1) / 0.8) - 2) * mapSize[0]
+                    ].setAttribute("fill", "transparent")
+
+                    console.log("Selecting", (Math.floor((gridSizeX * heldMouseCreatingWallCoords[0]) / 0.8) - Math.floor((gridSizeX * 0.1) / 0.8) - 2)
+                    + (Math.floor((gridSizeY * heldMouseCreatingWallCoords[1]) / 0.8) - Math.floor((gridSizeY * 0.1) / 0.8) - 2) * mapSize[0])
+                    console.log("Selecting Y being", (Math.floor((gridSizeY * heldMouseCreatingWallCoords[1]) / 0.8) - Math.floor((gridSizeY * 0.1) / 0.8) - 2) * mapSize[0])
+                    // heldMouseCreatingWallCoords
+                    // ${Math.floor((gridSizeX * e.clientX) / 0.8) - Math.floor((gridSizeX * 0.1) / 0.8) - 2}
+                    console.log("Settings", [pixelsToCoordsX(heldMouseCreatingWallCoords[0]), pixelsToCoordsY(heldMouseCreatingWallCoords[1])], [pixelsToCoordsX(e.clientX), pixelsToCoordsY(e.clientY)])
+                    createLine([[pixelsToCoordsX(heldMouseCreatingWallCoords[0]), pixelsToCoordsY(heldMouseCreatingWallCoords[1])], [pixelsToCoordsX(e.clientX), pixelsToCoordsY(e.clientY)]], "#")
+                    document.getElementById("activeWall").remove()
+                  }
+                  isMouseDownCreatingWall = false
+                })
+
+                for (var gridY = 0; gridY < mapSize[1]; gridY++) {
+                    for (var gridX = 0; gridX < mapSize[0]; gridX++) {
+                        var newCircle = document.createElementNS("http://www.w3.org/2000/svg", "use");
+                        newCircle.setAttribute("href", "#test");
+                        newCircle.setAttribute("x", String(((screen.clientWidth * 0.8) / (mapSize[0] - 1)) * gridX + screen.clientWidth * 0.1));
+                        newCircle.setAttribute("y", String(((screen.clientHeight * 0.8) / (mapSize[1] - 1)) * gridY + screen.clientHeight * 0.1));
+                        newCircle.setAttribute("stroke", "dimgray");
+                        newCircle.setAttribute("stroke-width", "4");
+                        newCircle.setAttribute("fill", "transparent");
+
+                        newCircle.addEventListener("mouseover", (e) => {
+                            e.target.setAttribute("fill", "gray");
+                        });
+
+                        newCircle.addEventListener("mousedown", (e) => {
+                            isMouseDownCreatingWall = true;
+                            var nodePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                            nodePath.setAttribute("stroke", "yellow");
+                            nodePath.setAttribute("stroke-width", 5);
+                            nodePath.setAttribute("id", "activeWall")
+                            if(heldMouseCreatingWallCoords.length > 0){
+                              heldMouseCreatingWallCoords = []
+                            }
+                            heldMouseCreatingWallCoords.push(e.clientX)
+                            heldMouseCreatingWallCoords.push(e.clientY)
+                            screen.appendChild(nodePath);
+                            e.target.setAttribute("fill", "yellow");
+                        });
+
+                        newCircle.addEventListener("mouseout", (e) => {
+                            if(e.target.getAttribute("fill") == "yellow"){
+                                return
+                            }
+                            e.target.setAttribute("fill", "transparent");
+                        });
+
+                        buildWallOverlay.appendChild(newCircle);
+                    }
+                }
+                playerSprite = document.createElementNS("http://www.w3.org/2000/svg", "use")
+                playerSprite.id = "playerSprite"
+                playerSprite.setAttribute("href", "#player")
+                playerSprite.style.display = "none"
+                playerSprite.setAttribute("x", "10%")
+                playerSprite.setAttribute("y", "10%")
+
+                screen.appendChild(playerSprite)
+            }
+
+            createMap();
+
+            function createLine(coords, fill) {
+                console.log("Coords are", String(coords));
+                coords.push(coords[0]);
+                var gridSizeX = ((mapSize[0] - 1) / screen.clientWidth);
+                var gridSizeY = ((mapSize[1] - 1) / screen.clientHeight);
                 coords.forEach((e, i) => {
-                    console.log("Coords are", String(coords))
-                    if(i >= coords.length - 1){
-                        return
+                    if (i >= coords.length - 1) {
+                        return;
                     }
-                    console.log("New check with coords with", coords[i], coords[i + 1])
-                    var xSlope = /*1/ySlope*/ Math.max(Math.min(1, (coords[i + 1][0] - coords[i][0]) / Math.abs(coords[i + 1][0] - coords[i][0])), -1)
-                    var ySlope = (coords[i + 1][1] - coords[i][1]) / (coords[i + 1][0] - coords[i][0])
-                    if(xSlope < 0){
-                        ySlope = (coords[i + 1][1] - coords[i][1]) / (coords[i + 1][0] - coords[i][0]) * -1
+                    var xSlope = /*1/ySlope*/ Math.max(
+                        Math.min(
+                            1,
+                            (coords[i + 1][0] - coords[i][0]) /
+                                Math.abs(coords[i + 1][0] - coords[i][0]),
+                        ),
+                        -1,
+                    );
+                    var ySlope =
+                        (coords[i + 1][1] - coords[i][1]) /
+                        (coords[i + 1][0] - coords[i][0]);
+                    if (xSlope < 0) {
+                        ySlope =
+                            ((coords[i + 1][1] - coords[i][1]) /
+                                (coords[i + 1][0] - coords[i][0])) *
+                            -1;
                     }
-                    if(isNaN(xSlope)){
-                        xSlope = 0
+                    if (isNaN(xSlope)) {
+                        xSlope = 0;
                     }
-                    if(ySlope == Infinity){
-                        ySlope = 1
+                    if (ySlope == Infinity) {
+                        ySlope = 1;
                     }
-                    
+                    if (ySlope == -Infinity) {
+                        ySlope = -1;
+                    }
+
                     var currentCoord = [];
-                    for(var ct = 0; ct < coords[i].length; ct++){
-                        currentCoord.push(parseInt(String(coords[i][ct])))
+                    for (var ct = 0; ct < coords[i].length; ct++) {
+                        currentCoord.push(parseInt(String(coords[i][ct])));
                     }
-                    console.log("currentCoord are", currentCoord)
-                    gameMap[currentCoord[1]][currentCoord[0]] = "x"
-                    while( !(currentCoord[0] == coords[i + 1][0]) || !(currentCoord[1] == coords[i + 1][1])){
-                        currentCoord[1] += ySlope
-                        currentCoord[0] += xSlope
-                        console.log("Coords are", String(currentCoord[0]), String(currentCoord[1]))
-                        console.log("Checking", `(${xSlope}, ${ySlope})`)
-                        gameMap[currentCoord[1]][currentCoord[0]] = "x"
+                    gameMap[currentCoord[1]][currentCoord[0]] = "#";
+                    var displayedWall = document.createElementNS("http://www.w3.org/2000/svg", "rect")
+                    displayedWall.setAttribute("width", "2vw")
+                    displayedWall.setAttribute("height", "2vw")
+                    displayedWall.setAttribute("x", `calc(
+                      ${((screen.clientWidth * 0.8) / (mapSize[0] - 1)) * currentCoord[0]}px -
+                      ${window.innerWidth / 100}px + 10%)`)
+                    displayedWall.setAttribute("y", `calc(
+                      ${((screen.clientHeight * 0.8) / (mapSize[1] - 1)) * currentCoord[1]}px -
+                      ${window.innerHeight / 100}px + 10%)`)
+                    console.log("Setting Coords at", (Math.floor((heldMouseCreatingWallCoords[0]) / mapSize[0])) * mapSize[0] - screen.clientWidth * 0.1 - 8, (Math.floor((heldMouseCreatingWallCoords[1]) / mapSize[1])) * mapSize[1] - screen.clientWidth * 0.1 - 8)
+                    displayedWall.setAttribute("fill", "#000")
+
+                    screen.appendChild(displayedWall)
+
+                    while (!(currentCoord[0] == coords[i + 1][0]) || !(currentCoord[1] == coords[i + 1][1])) {
+                        currentCoord[1] += ySlope;
+                        currentCoord[0] += xSlope;
+                        displayedWall = document.createElementNS("http://www.w3.org/2000/svg", "rect")
+                        displayedWall.setAttribute("width", "2vw")
+                        displayedWall.setAttribute("height", "2vw")
+                        displayedWall.setAttribute("x", `calc(
+                          ${((screen.clientWidth * 0.8) / (mapSize[0] - 1)) * currentCoord[0]}px -
+                          ${window.innerWidth / 100}px + 10%)`)
+                        displayedWall.setAttribute("y", `calc(
+                          ${((screen.clientHeight * 0.8) / (mapSize[1] - 1)) * currentCoord[1]}px -
+                          ${window.innerHeight / 100}px + 10%)`)
+                        console.log("Setting Coords at", (Math.floor((heldMouseCreatingWallCoords[0]) / mapSize[0])) * mapSize[0] - screen.clientWidth * 0.1 - 8, (Math.floor((heldMouseCreatingWallCoords[1]) / mapSize[1])) * mapSize[1] - screen.clientWidth * 0.1 - 8)
+                        displayedWall.setAttribute("fill", "#000")
+                        screen.appendChild(displayedWall)
+                        console.log("Checking", `(${currentCoord[0]}, ${currentCoord[1]})`);
+                        gameMap[currentCoord[1]][currentCoord[0]] = fill;
                     }
-                })
+                });
             }
 
-            createLine([[0, 0], [0, 10], [5, 5]])
+            function runSim(){
+              simRunning = true
+              document.getElementById("playerSprite").style.display = "initial"
+              document.getElementById("buildWallOverlay").style.display = "none"
+            }
 
-            gameMap[playerCoords[1]][playerCoords[0]] = "o"
-            
-            function registerMoves(){
-                var movePlayer = (x, y) => {
-                    console.log("Checking", playerCoords[1] + y, playerCoords[0] + x)
-                    if(gameMap[playerCoords[1] + y][playerCoords[0] + x] != " "){
-                        console.log("Hit collision")
-                        return
+            // createLine(
+            //     [
+            //         [0, 0],
+            //         [0, 5],
+            //         [5, 0],
+            //     ],
+            //     "#",
+            // );
+            // createLine(
+            //     [
+            //         [0, 0],
+            //         [0, mapSize[1] - 1],
+            //         [mapSize[0] - 1, mapSize[1] - 1],
+            //         [mapSize[0] - 1, 0],
+            //     ],
+            //     "#",
+            // );
+
+            document.addEventListener("keydown", (e) => {
+              if(!simRunning){
+                return
+              }
+              var rotationStrength = 1;
+              var movePlayer = (x, y) => {
+                    var playerSprite = document.getElementById("playerSprite")
+                    playerData["x"] += 5 * ((Math.cos(playerData["rotation"] * rotationStrength) - Math.sin(playerData["rotation"] * rotationStrength)) * (-1 * Math.abs(x) + x + 1))
+                    playerData["y"] += 5 * ((Math.sin(playerData["rotation"] * rotationStrength) + Math.cos(playerData["rotation"] * rotationStrength)) * (-1 * Math.abs(y) + y + 1))
+
+                    if(-((playerData["radius"] / 100) * window.innerWidth) + playerData["x"] < 0 || -((playerData["radius"] / 100) * window.innerWidth) + playerData["y"] < 0){
+                      playerData["x"] = Math.max(playerData["x"], 1)
+                      playerData["y"] = Math.max(playerData["y"], 1)
                     }
-                    gameMap[playerCoords[1]][playerCoords[0]] = " "
-                    gameMap[playerCoords[1] + y][playerCoords[0] + x] = "o"
-                    playerCoords[0] += x
-                    playerCoords[1] += y
+
+                    if(((playerData["radius"] / 100) * window.innerWidth) + playerData["x"] > document.getElementById("landSquare").getBBox().width || ((playerData["radius"] / 100) * window.innerWidth) + playerData["y"] > document.getElementById("landSquare").getBBox().height){
+                      playerData["x"] = Math.min(playerData["x"], document.getElementById("landSquare").getBBox().width - 1)
+                      playerData["y"] = Math.min(playerData["y"], document.getElementById("landSquare").getBBox().height - 1)
+                    }
+
+                    console.log(playerData["x"], playerData["y"]);
+                    var landSquare = document.getElementById("landSquare");
+                    var closestCoords = [
+                      Math.floor(playerData["x"] / (landSquare.getBBox().width / (mapSize[0] - 1)) + 0.5) ,
+                      Math.floor(playerData["y"] / (landSquare.getBBox().height / (mapSize[1] - 1)) + 0.5)
+                    ]
+                    if(gameMap[closestCoords[1]][closestCoords[0]] == "#"){
+                      console.log("Colliding with Wall!")
+                      movePlayer(-x, -y)
+                    }
+                    console.log("Closest Play Coords are",
+                      (Math.floor(playerData["x"] / (landSquare.getBBox().width / mapSize[0]))),
+                      (Math.floor(playerData["y"] / (landSquare.getBBox().height / mapSize[1]))))
+
+                    playerSprite.setAttribute("x", `calc(${playerData["x"]}px + ${(document.getElementById("screen").clientWidth * 0.8) / 18}px + 10%)`);
+                    playerSprite.setAttribute("y", `calc(${playerData["y"]}px + ${(document.getElementById("screen").clientHeight * 0.8) / 18}px + 10%)`);
+
+                    playerSprite.setAttribute("x", `calc(${playerData["x"]}px + 10%)`);
+                    playerSprite.setAttribute("y", `calc(${playerData["y"]}px + 10%)`);
+
+                    document.getElementById("lowerMoveBarList").innerText = `Coords: (${Math.floor(playerData["x"] + 0.5)}pxs, ${Math.floor(playerData["y"] + 0.5)}pxs)`
+
+                    console.log("Move", x, y);
+              };
+              switch (e.key) {
+                    case "w":
+                        movePlayer(-1, -1);
+                        break;
+                    case "a":
+                        playerData["rotation"] -= Math.PI / 8;
+                        console.log(playerData["rotation"])
+                        document.getElementById("player").style.rotate = `${playerData["rotation"] - Math.PI / 4}rad`
+                        break;
+                    case "s":
+                        movePlayer(1, 1);
+                        break;
+                    case "d":
+                        playerData["rotation"] += Math.PI / 8;
+                        console.log(playerData["rotation"])
+                        document.getElementById("player").style.rotate = `${playerData["rotation"] - Math.PI / 4}rad`
+                        break;
                 }
-                playerMoves.forEach((e, i) => {
-                    console.log("Moves are", playerMoves[i])
-                    switch(playerMoves[i]){
-                        case "w":
-                            if (rotation === 0) movePlayer(0, 1);      // Up
-                            if (rotation === 90) movePlayer(1, 0);     // Right
-                            if (rotation === 180) movePlayer(0, -1);   // Down
-                            if (rotation === 270) movePlayer(-1, 0);
-                            break
-                        case "a":
-                            rotation = (rotation + 270) % 360;  
-                            break
-                        case "s":
-                            if (rotation === 0) movePlayer(0, -1);     // Down
-                            if (rotation === 90) movePlayer(-1, 0);    // Left
-                            if (rotation === 180) movePlayer(0, 1);    // Up
-                            if (rotation === 270) movePlayer(1, 0); 
-                            break
-                        case "d":
-                            rotation = (rotation + 90) % 360;
-                            break
-                    }
-                })
-            }
-            registerMoves()
+
+              });
+
         </script>
     </body>
 </html>
